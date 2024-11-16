@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>1. Implementing Feedforward neural networks in Python using Keras and TensorFlow</h1>
+        <br>
+        import tensorflow as tf<br>
+        from tensorflow.keras import datasets, layers, models<br>
+        from tensorflow.keras.models import Sequential<br>
+        from tensorflow.keras.layers import Dense, Dropout, Flatten<br>
+        import matplotlib.pyplot as plt<br>
+        import numpy as np<br>
+        # Load MNIST dataset <br>
+        (train_images, train_labels), (test_images, test_labels) = datasets.mnist.load_data() <br>
+        # Normalize pixel values to between 0 and 1<br>
+        train_images = train_images.astype('float32') / 255.0<br>
+        test_images = test_images.astype('float32') / 255.0<br>
+        # Flatten images from 28x28 to 784-dimensional vectors<br>
+        train_images = train_images.reshape((train_images.shape[0], 28 * 28))<br>
+        test_images = test_images.reshape((test_images.shape[0], 28 * 28))<br>
+        # Plot the first 5 images and their labels<br>
+        plt.figure(figsize=(10,2))<br>
+        for i in range(5):<br>
+        plt.subplot(1,5,i+1)<br>
+        plt.imshow(train_images[i].reshape(28,28), cmap='gray')<br>
+        plt.title(f"Label: {train_labels[i]}")<br>
+        plt.axis('off')<br>
+        plt.show()<br>
+        # Define the model<br>
+        model = models.Sequential([<br>
+        layers.Dense(128, activation='relu', input_shape=(784,)),<br>
+        layers.Dense(64, activation='relu'),<br>
+        layers.Dense(10, activation='softmax')<br>
+        ])<br>
+
+        model.summary()<br>
+        # compile the model<br>
+        model.compile(<br>
+        optimizer='adam',<br>
+        loss='sparse_categorical_crossentropy',<br>
+        metrics=['accuracy']<br>
+        )<br>
+        # Train the model<br>
+        history = model.fit(<br>
+        train_images,<br>
+        train_labels,<br>
+        epochs=10,<br>
+        batch_size=32,<br>
+        validation_split=0.1<br>
+        )<br>
+        test_loss, test_accuracy = model.evaluate(test_images, test_labels)<br>
+        print(f"Test Accuracy: {test_accuracy*100:.2f}%")<br>
+        # Plot training & validation accuracy values<br>
+        plt.figure(figsize=(12,4))<br>
+
+        plt.subplot(1,2,1)<br>
+        plt.plot(history.history['accuracy'], label='Train Accuracy')<br>
+        plt.plot(history.history['val_accuracy'], label='Val Accuracy')<br>
+        plt.title('Model Accuracy')<br>
+        plt.xlabel('Epoch')<br>
+        plt.ylabel('Accuracy')<br>
+        plt.legend()<br>
+
+        # Plot training & validation loss values<br>
+        plt.subplot(1,2,2)<br>
+        plt.plot(history.history['loss'], label='Train Loss')<br>
+        plt.plot(history.history['val_loss'], label='Val Loss')<br>
+        plt.title('Model Loss')<br>
+        plt.xlabel('Epoch')<br>
+        plt.ylabel('Loss')<br>
+        plt.legend()<br>
+
+        plt.show()<br>
+        # Predict the first 5 images in the test set<br>
+        predictions = model.predict(test_images[:15])<br>
+
+        # Convert predictions to class labels<br>
+        predicted_labels = np.argmax(predictions, axis=1)<br>
+
+        # Plot the results<br>
+        plt.figure(figsize=(10,2))<br>
+        for i in range(15):<br>
+        plt.subplot(1,15,i+1)<br>
+        plt.imshow(test_images[i].reshape(28,28), cmap='gray')<br>
+        plt.title(f"Pred: {predicted_labels[i]}\nTrue: {test_labels[i]}")<br>
+        plt.axis('off')<br>
+        plt.show()<br>
+    </div>
+    <div class="container">
+        <h1>2. Facial recognition using OpenCV and deep learning for binary classification.</h1><br>
+        from cv2 import imread<br>
+        from cv2 import imshow<br>
+        from cv2 import waitKey<br>
+        from cv2 import destroyAllWindows<br>
+        from cv2 import CascadeClassifier<br>
+        from cv2 import rectangle<br>
+        # load the photograph<br>
+        pixels = imread('faces.jpeg')<br>
+        # load the pre-trained modelz<br>
+        classifier = CascadeClassifier('haarcascade_frontalface_default.xml')<br>
+        # perform face detection<br>
+        bboxes = classifier.detectMultiScale(pixels)<br>
+
+        # print bounding box for each detected face<br>
+        for box in bboxes:<br>
+        # extract<br>
+        x, y, width, height = box<br>
+        x2, y2 = x + width, y + height<br>
+        # draw a rectangle over the pixels<br>
+        rectangle(pixels, (x, y), (x2, y2), (0,0,255), 1)<br>
+        # show the image<br>
+        imshow('face detection', pixels)<br>
+        # keep the window open until we press a key<br>
+        waitKey(0)<br>
+        # close the window<br>
+        destroyAllWindows()<br>
+    </div>
+    <div class="container">
+        <h1>3. Implement Image classification using convolutional neural networks (CNNs) for multiclass
+            classification.</h1><br>
+        # Importing the Necessary libraries<br>
+        import tensorflow as tf<br>
+        # from tensorflow.keras import datasets, layers, models<br>
+        import tensorflow.keras<br>
+        import matplotlib.pyplot as plt<br>
+        from tensorflow.keras.utils import plot_model<br>
+        # loading cifar10 dataset :- 60,000 (32*32) , 10 classes<br>
+        (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()<br>
+        # normalizing values to bring between 0 to 1<br>
+        train_images, test_images = train_images / 255.0, test_images / 255.0<br>
+        model = models.Sequential()<br>
+        # 1st Layer -- convolutional layer with 32 filters (3*3)<br>
+        model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))<br>
+        model.add(layers.MaxPooling2D((2, 2)))<br>
+        # 2nd Layer -- convolutional layer with 64 filters (3*3)<br>
+        model.add(layers.Conv2D(64, (3, 3), activation='relu'))<br>
+        model.add(layers.MaxPooling2D((2, 2)))<br>
+        # Last Layer<br>
+        model.add(layers.Conv2D(64, (3, 3), activation='relu'))<br>
+        # Flattern and Dense layer (fully connected layers)<br>
+        model.add(layers.Flatten()) # converts 2D feature maps into a 1D vector<br>
+        model.add(layers.Dense(64, activation='relu')) # fully connected (dense) layer with 64 neurons<br>
+        model.add(layers.Dense(10)) # Final layer with 10 neurons for each class in cifar<br>
+        plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)<br>
+        model.compile(optimizer='adam',<br>
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), # used for multiclass classification<br>
+        problems<br>
+        metrics=['accuracy'])<br>
+        history = model.fit(train_images, train_labels, epochs=10,<br>
+        validation_data=(test_images, test_labels))<br>
+        test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=1)<br>
+        print(f'Test accuracy: {test_acc:.4f}')<br>
+        print(f'Test loss: {test_loss:.4f}')<br>
+        plt.plot(history.history['accuracy'], label='accuracy')<br>
+        plt.plot(history.history['val_accuracy'], label='val_accuracy')<br>
+        plt.xlabel('Epoch')<br>
+        plt.ylabel('Accuracy')<br>
+        # plt.ylim([0.5, 1])<br>
+        plt.legend(loc='lower right')<br>
+        plt.show()<br>
+        history.history['accuracy']<br>
+        import numpy as np<br>
+        class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']<br>
+
+        # 1. Pick a test image (e.g., the first image in the test set)<br>
+        test_image = test_images[1000]<br>
+        test_label = test_labels[1000]<br>
+
+        # 2. Add a batch dimension (model expects a batch of images)<br>
+        test_image_batch = np.expand_dims(test_image, axis=0)<br>
+
+        # 3. Make a prediction<br>
+        predictions = model.predict(test_image_batch)<br>
+        predicted_label = np.argmax(predictions[0]) # Get the index of the highest probability class<br>
+
+        # 4. Display the image and the predicted label<br>
+        plt.imshow(test_image)<br>
+        plt.title(f'Predicted: {class_names[predicted_label]}, Actual: {class_names[test_label[0]]}')<br>
+        plt.axis('off') # Remove axis ticks<br>
+        plt.show()<br>
+    </div>
+    <div class="container">
+        <h1>4. Time series prediction using RNN – stock market analysis or weather forecasting</h1><br>
+        import numpy as np<br>
+        import pandas as pd<br>
+        import matplotlib.pyplot as plt<br>
+        from sklearn.preprocessing import MinMaxScaler<br>
+        from keras.models import Sequential<br>
+        from keras.layers import Dense, SimpleRNN<br>
+        from sklearn.model_selection import train_test_split<br>
+
+        # 1. Load the dataset<br>
+        df = pd.read_csv('/content/tesla.csv') # Ensure the dataset has 'Date' and 'Close' columns<br>
+        df['Date'] = pd.to_datetime(df['Date'])<br>
+        df.set_index('Date', inplace=True)<br>
+
+        # 2. Preprocess the data (normalize)<br>
+        data = df[['Close']].values<br>
+        scaler = MinMaxScaler(feature_range=(0, 1))<br>
+        scaled_data = scaler.fit_transform(data)<br>
+
+        # 3. Create sequences for the RNN<br>
+        def create_sequences(data, sequence_length):<br>
+        X, y = [], []<br>
+        for i in range(len(data) - sequence_length):<br>
+        X.append(data[i:i + sequence_length])<br>
+        y.append(data[i + sequence_length])<br>
+        return np.array(X), np.array(y)<br>
+
+        sequence_length = 60<br>
+        X, y = create_sequences(scaled_data, sequence_length)<br>
+
+        # 4. Split the data into train and test sets<br>
+        split_index = int(len(X) * 0.8)<br>
+        X_train, y_train = X[:split_index], y[:split_index]<br>
+        X_test, y_test = X[split_index:], y[split_index:]<br>
+
+        # 5. Build the RNN model<br>
+        model = Sequential()<br>
+        model.add(SimpleRNN(units=50, activation='relu', input_shape=(sequence_length, 1)))<br>
+        model.add(Dense(1)) # Output layer for predicting the stock price<br>
+
+        model.compile(optimizer='adam', loss='mean_squared_error')<br>
+
+        # 6. Train the model on the training set<br>
+        history = model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))<br>
+
+        # 7. Predict for the next 20 days<br>
+        # Use the last 60 days from the training set to predict the next 20 days<br>
+        predictions = []<br>
+        input_sequence = scaled_data[split_index - sequence_length:split_index]<br>
+
+        for _ in range(20): # Predict for the next 20 days<br>
+        input_sequence = np.reshape(input_sequence, (1, sequence_length, 1)) # Ensure correct shape for RNN<br>
+        predicted_price = model.predict(input_sequence)<br>
+
+        predictions.append(predicted_price[0][0]) # Save predicted price<br>
+
+        # Reshape the predicted price to match input shape (1, 1, 1)<br>
+        predicted_price = np.reshape(predicted_price, (1, 1, 1))<br>
+
+        # Shift the input_sequence and append the predicted price<br>
+        input_sequence = np.append(input_sequence[:, 1:, :], predicted_price, axis=1)<br>
+
+        # 8. Inverse transform the predicted prices<br>
+        predicted_prices = scaler.inverse_transform(np.array(predictions).reshape(-1, 1))<br>
+
+        # 9. Compare with the actual prices<br>
+        actual_prices = scaler.inverse_transform(scaled_data[split_index:split_index+20])<br>
+
+        # 10. Plot the results<br>
+        plt.plot(df.index[split_index:split_index+20], actual_prices, label='Actual Prices')<br>
+        plt.plot(df.index[split_index:split_index+20], predicted_prices, label='Predicted Prices')<br>
+        plt.xlabel('Date')<br>
+        plt.ylabel('Stock Price')<br>
+        plt.legend()<br>
+        plt.show()<br>
+
+        # Print actual and predicted prices for the next 20 days<br>
+        for i in range(20):<br>
+        print(f"Day {i+1}: Actual: {actual_prices[i][0]}, Predicted: {predicted_prices[i][0]}")<br>
+    </div>
+    <div class="container">
+        <h1>5. Text identification using OpenCV, Tesseract (OCR) and deep neural network</h1><br>
+        !apt-get install -y tesseract-ocr # Install Tesseract OCR engine<br>
+        !pip install pytesseract # Install pytesseract (Python wrapper for Tesseract)<br>
+        import cv2 # For image processing<br>
+        import numpy as np # Used for numerical operations on image arrays<br>
+        import pytesseract # For Optical Character Recognition (OCR)<br>
+        from google.colab.patches import cv2_imshow # To display images in Colab<br>
+        from google.colab import files # To handle file uploads in Colab<br>
+        import os # For file path operations<br>
+
+        from google.colab import drive<br>
+        drive.mount('/content/drive') # Connect to the Drive<br>
+        def preprocess_image(image):<br>
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # Convert to grayscale<br>
+        denoised = cv2.fastNlMeansDenoising(gray) # Remove noise<br>
+        thresh = cv2.threshold(denoised, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1] # Binary thresholding<br>
+        return thresh<br>
+        def detect_text_regions(image):<br>
+        # Detecting words<br>
+        boxes = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT) # Get text region data<br>
+        return boxes<br>
+        def draw_bounding_boxes(image, boxes):<br>
+        output = image.copy() # Copy original image to draw boxes<br>
+        n_boxes = len(boxes['level']) # Total number of detected text regions<br>
+        for i in range(n_boxes):<br>
+        if int(boxes['conf'][i]) > 60: # Only consider boxes with confidence > 60%<br>
+        (x, y, w, h) = (boxes['left'][i], boxes['top'][i], boxes['width'][i], boxes['height'][i]) # Box coordinates<br>
+        cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2) # Draw rectangle on the image<br>
+        return output<br>
+        def get_detected_text(boxes):<br>
+        detected_text = []<br>
+        n_boxes = len(boxes['level']) # Total number of detected boxes<br>
+        for i in range(n_boxes):<br>
+        if int(boxes['conf'][i]) > 60: # Only extract text with confidence > 60%<br>
+        detected_text.append(boxes['text'][i]) # Append detected text<br>
+        return ' '.join(detected_text) # Combine text into a single string<br>
+        image_path = "/content/drive/MyDrive/Test_Text/3.png"<br>
+
+        image = cv2.imread(image_path) # Read the image<br>
+        # Check if image was successfully read<br>
+        if image is None:<br>
+        print(f"Error: Unable to read the image file: {image_path}")<br>
+        else:<br>
+        # Display original image<br>
+        print("\nOriginal Image:")<br>
+        cv2_imshow(image)<br>
+
+        # Preprocess the image and detect text regions<br>
+        preprocessed = preprocess_image(image) # Preprocessing<br>
+        boxes = detect_text_regions(preprocessed) # Detect text regions<br>
+
+        # Draw bounding boxes on original image<br>
+        image_with_boxes = draw_bounding_boxes(image, boxes)<br>
+
+        # Display the image with bounding boxes<br>
+        print("\nImage with Text Detection Regions:")<br>
+        cv2_imshow(image_with_boxes)<br>
+
+        # Extract and print the detected text<br>
+        detected_text = get_detected_text(boxes)<br>
+        print("\nDetected Text:")<br>
+        print(detected_text)<br>
+    </div>
+    <div class="container">
+        <h1>6. Sentiment analysis using LSTM network or GRU.</h1><br>
+        import pandas as pd # to load dataset<br>
+        import numpy as np # for mathematic equation<br>
+        from nltk.corpus import stopwords # to get collection of stopwords<br>
+        from sklearn.model_selection import train_test_split # for splitting dataset<br>
+        from tensorflow.keras.preprocessing.text import Tokenizer # to encode text to int<br>
+        from tensorflow.keras.preprocessing.sequence import pad_sequences # to do padding or truncating<br>
+        from tensorflow.keras.models import Sequential # the model<br>
+        from tensorflow.keras.layers import Embedding, LSTM, Dense # layers of the architecture<br>
+        from tensorflow.keras.callbacks import ModelCheckpoint # save model<br>
+        from tensorflow.keras.models import load_model # load saved model<br>
+        import re<br>
+        data = pd.read_csv('IMDB Dataset.csv')<br>
+
+        print(data)<br>
+        english_stops = set(stopwords.words('english'))<br>
+        def load_dataset():<br>
+        df = pd.read_csv('IMDB Dataset.csv')<br>
+        x_data = df['review'] # Reviews/Input<br>
+        y_data = df['sentiment'] # Sentiment/Output<br>
+
+        # PRE-PROCESS REVIEW<br>
+        x_data = x_data.replace({'<.*?>': ''}, regex = True) # remove html tag<br>
+            x_data = x_data.replace({'[^A-Za-z]': ' '}, regex = True) # remove non alphabet<br>
+            x_data = x_data.apply(lambda review: [w for w in review.split() if w not in english_stops]) # remove stop
+            words<br>
+            x_data = x_data.apply(lambda review: [w.lower() for w in review]) # lower case<br>
+
+            # ENCODE SENTIMENT -> 0 & 1<br>
+            y_data = y_data.replace('positive', 1)<br>
+            y_data = y_data.replace('negative', 0)<br>
+
+            return x_data, y_data<br>
+
+            x_data, y_data = load_dataset()<br>
+
+            print('Reviews')<br>
+            print(x_data, '\n')<br>
+            print('Sentiment')<br>
+            print(y_data)<br>
+            x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size = 0.2)<br>
+
+            print('Train Set')<br>
+            print(x_train, '\n')<br>
+            print(x_test, '\n')<br>
+            print('Test Set')<br>
+            print(y_train, '\n')<br>
+            print(y_test)<br>
+            def get_max_length():<br>
+            review_length = []<br>
+            for review in x_train:<br>
+            review_length.append(len(review))<br>
+
+            return int(np.ceil(np.mean(review_length)))<br>
+            # ENCODE REVIEW<br>
+            token = Tokenizer(lower=False) # no need lower, because already lowered the data in load_data()<br>
+            token.fit_on_texts(x_train)<br>
+            x_train = token.texts_to_sequences(x_train)<br>
+            x_test = token.texts_to_sequences(x_test)<br>
+
+            max_length = get_max_length()<br>
+
+            x_train = pad_sequences(x_train, maxlen=max_length, padding='post', truncating='post')<br>
+            x_test = pad_sequences(x_test, maxlen=max_length, padding='post', truncating='post')<br>
+
+            total_words = len(token.word_index) + 1 # add 1 because of 0 padding<br>
+
+            print('Encoded X Train\n', x_train, '\n')<br>
+            print('Encoded X Test\n', x_test, '\n')<br>
+            print('Maximum review length: ', max_length)<br>
+            # ARCHITECTURE<br>
+            EMBED_DIM = 32<br>
+            LSTM_OUT = 64<br>
+
+            model = Sequential()<br>
+            model.add(Embedding(total_words, EMBED_DIM, input_length = max_length))<br>
+            model.add(LSTM(LSTM_OUT))<br>
+            model.add(Dense(1, activation='sigmoid'))<br>
+            model.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])<br>
+
+            print(model.summary())<br>
+            checkpoint = ModelCheckpoint(<br>
+            'models/LSTM.h5',<br>
+            monitor='accuracy',<br>
+            save_best_only=True,<br>
+            verbose=1<br>
+            )<br>
+            model.fit(x_train, y_train, batch_size = 128, epochs = 5, callbacks=[checkpoint])<br>
+            y_pred = model.predict_classes(x_test, batch_size = 128)<br>
+
+            true = 0<br>
+            for i, y in enumerate(y_test):<br>
+            if y == y_pred[i]:<br>
+            true += 1<br>
+
+            print('Correct Prediction: {}'.format(true))<br>
+            print('Wrong Prediction: {}'.format(len(y_pred) - true))<br>
+            print('Accuracy: {}'.format(true/len(y_pred)*100))<br>
+            loaded_model = load_model('models/LSTM.h5')<br>
+            review = str(input('Movie Review: '))<br>
+            # Pre-process input<br>
+            regex = re.compile(r'[^a-zA-Z\s]')<br>
+            review = regex.sub('', review)<br>
+            print('Cleaned: ', review)<br>
+
+            words = review.split(' ')<br>
+            filtered = [w for w in words if w not in english_stops]<br>
+            filtered = ' '.join(filtered)<br>
+            filtered = [filtered.lower()]<br>
+
+            print('Filtered: ', filtered)<br>
+            tokenize_words = token.texts_to_sequences(filtered)<br>
+            tokenize_words = pad_sequences(tokenize_words, maxlen=max_length, padding='post', truncating='post')<br>
+            print(tokenize_words)<br>
+            result = loaded_model.predict(tokenize_words)<br>
+            print(result)<br>
+            if result >= 0.7:<br>
+            print('positive')<br>
+            else:<br>
+            print('negative')<br>
+    </div>
+    <div class="container">
+        <h1>7. Object detection using YOLO and Pretrained Model</h1><br>
+        pip install ultralytics opencv-python-headless<br>
+        from ultralytics import YOLO<br>
+        import cv2<br>
+
+        # Load a pre-trained YOLO model<br>
+        model = YOLO('yolov5s.pt') # Use 'yolov8s.pt' if using YOLOv8<br>
+
+        # Load the image<br>
+        image_path = 'your_image.jpg' # Replace with your image path<br>
+        image = cv2.imread(image_path)<br>
+
+        # Perform object detection<br>
+        results = model(image)<br>
+
+        # Loop through detected objects and annotate<br>
+        for result in results[0].boxes.data.tolist():<br>
+        x1, y1, x2, y2, conf, cls = result<br>
+        class_name = model.names[int(cls)]<br>
+        label = f"{class_name} {conf:.2f}"<br>
+
+        # Draw a rectangle around the detected object<br>
+        cv2.rectangle(image, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)<br>
+        cv2.putText(image, label, (int(x1), int(y1)-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)<br>
+
+        # Save or display the image<br>
+        cv2.imwrite('output.jpg', image)<br>
+        cv2.imshow('Detected Objects', image)<br>
+        cv2.waitKey(0)<br>
+        cv2.destroyAllWindows()<br>
+
+    </div>
+</body>
+
+</html>
